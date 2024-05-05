@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.pfa.pfabackend.dto.user.ClientDto;
+import com.pfa.pfabackend.dto.client.ClientDto;
 import com.pfa.pfabackend.model.Client;
 @Data
 @Builder
