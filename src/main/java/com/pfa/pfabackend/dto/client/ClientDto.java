@@ -1,9 +1,10 @@
-package com.pfa.pfabackend.dto.user;
+package com.pfa.pfabackend.dto.client;
 
 import lombok.*;
 
 import java.util.Date;
 
+import com.pfa.pfabackend.dto.user.UserDTO;
 import com.pfa.pfabackend.enums.Auth;
 
 @Data
