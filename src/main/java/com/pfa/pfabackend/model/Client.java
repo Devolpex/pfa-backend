@@ -27,4 +27,7 @@ public class Client {
 
     @OneToMany(mappedBy = "client" ,cascade = CascadeType.ALL,orphanRemoval = true)
     private List<CodeConfirmation> codeConfirmationList;
+
+    @OneToMany(mappedBy = "client", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Demande> demandeList;
 }

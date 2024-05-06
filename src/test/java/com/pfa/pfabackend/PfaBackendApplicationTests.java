@@ -1,10 +1,10 @@
-package com.eshop.userbackend;
+package com.pfa.pfabackend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class UserBackendApplicationTests {
+class PfaBackendApplicationTests {
 
 	@Test
 	void contextLoads() {
