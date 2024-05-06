@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:latest
+    container_name: pfa-mysql-container
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "3300:3300"
+    volumes:
+      - mysql-data:/var/lib/mysql  # Volume configuration for MySQL data
+    networks:
+      - pfa-network
+
+  pfa-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pfa-backend-container
+    depends_on:
+      - mysql
+    ports:
+      - "8024:8024"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE}?createDatabaseIfNotExist=true&characterEncoding=UTF-8&useUnicode=true&useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+    networks:
+      - pfa-network
+
+networks:
+  pfa-network:
+    driver: bridge
+
+volumes:
+  mysql-data:  # Define a named volume for MySQL data persistence
