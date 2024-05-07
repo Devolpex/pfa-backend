@@ -11,10 +11,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.pfa.pfabackend.enums.Auth;
 import com.pfa.pfabackend.enums.Role;
 import com.pfa.pfabackend.model.Client;
 import com.pfa.pfabackend.model.CodeConfirmation;
 import com.pfa.pfabackend.model.User;
+import com.pfa.pfabackend.repository.ClientRepository;
 import com.pfa.pfabackend.repository.CodeConfirmationRepository;
 import com.pfa.pfabackend.repository.UserRepository;
 import com.pfa.pfabackend.request.auth.LoginRequest;
@@ -30,6 +32,7 @@ import org.springframework.data.domain.Sort;
 @RequiredArgsConstructor
 public class AuthService {
     private final UserRepository repository;
+    private final ClientRepository clientRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -38,6 +41,8 @@ public class AuthService {
     public AuthResponse register(User user) {
         repository.save(user);
         var jwtToken = jwtService.generateToken(user);
+        Client client = Client.builder().user(user).auth(Auth.EMAIL).build();
+        clientRepository.save(client);
         return AuthResponse.builder().token(jwtToken).role(user.getRole()).build();
     }
 
