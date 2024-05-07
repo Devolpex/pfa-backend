@@ -1,6 +1,12 @@
 package com.pfa.pfabackend.controller;
 
-
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 import com.pfa.pfabackend.request.demande.DemandeCreateRequest;
 import com.pfa.pfabackend.response.demande.DemandeCreateResponse;
 import com.pfa.pfabackend.service.ClientService;
@@ -28,7 +34,7 @@ public class DemandeController {
     private final ClientService clientService;
 
     @PostMapping
-    @PreAuthorize("hasAuthority('CLIENT')")
+//    @PreAuthorize("hasAuthority('CLIENT')")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<DemandeCreateResponse> createDemande(@RequestBody @Valid DemandeCreateRequest request,
                                                                BindingResult bindingResult) {
