@@ -1,5 +1,6 @@
 package com.pfa.pfabackend.controller;
 
+import com.pfa.pfabackend.dto.demande.DemandeDto;
 import com.pfa.pfabackend.model.Demande;
 import com.pfa.pfabackend.response.demande.GetDemandeResponse;
 import jakarta.validation.Valid;
@@ -60,21 +61,14 @@ public class DemandeController {
 
     @GetMapping("/{id}")
 //@PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<GetDemandeResponse> getDemandeById(@PathVariable Long id, BindingResult bindingResult) {
-        Demande demande = demandeService.findDemandeById(id);
+    public ResponseEntity<GetDemandeResponse> getDemandeById(@PathVariable Long id) {
+        DemandeDto demande = demandeService.findDemandeById(id);
         List<String> errors = new ArrayList<>();
         if (demande == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(GetDemandeResponse.builder()
                     .errors(Collections.singletonList("Demande not found")).build());
         }
-        if (bindingResult.hasErrors()) {
-            errors = bindingResult.getAllErrors().stream().map(error -> error.getDefaultMessage())
-                    .collect(Collectors.toList());
-        }
-        if (!errors.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(GetDemandeResponse.builder().errors(errors).build());
-        }
+        // No need for bindingResult.hasErrors() check here since we don't have BindingResult
         return ResponseEntity.status(HttpStatus.OK).body(GetDemandeResponse.builder()
                 .demande(demande)
                 .build());

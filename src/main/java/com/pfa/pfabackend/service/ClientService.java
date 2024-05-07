@@ -79,6 +79,8 @@ public class ClientService {
         return client;
     }
 
+
+
     // Convert client to DTO
     private ClientDto convertToDTO(Client client) {
         UserDTO user = UserDTO.builder()

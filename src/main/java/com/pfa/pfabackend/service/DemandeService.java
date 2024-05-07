@@ -1,5 +1,8 @@
 package com.pfa.pfabackend.service;
 
+import com.pfa.pfabackend.dto.client.ClientDto;
+import com.pfa.pfabackend.dto.demande.DemandeDto;
+import com.pfa.pfabackend.dto.user.UserDTO;
 import com.pfa.pfabackend.enums.DemandeStatus;
 import com.pfa.pfabackend.enums.DemandeType;
 import com.pfa.pfabackend.model.Client;
@@ -31,9 +34,33 @@ public class DemandeService {
         demande.setClient(client);
         return demande;
     }
-    public Demande findDemandeById(long id) {
-        Demande demande = demandeRepository.findById(id).orElse( null);
-        return demande;
+//    public Demande findDemandeById(long id) {
+//        Demande demande = demandeRepository.findById(id).orElse( null);
+//        return demande;
+//    }
+
+
+    private DemandeDto convertToDTO(Demande demande){
+         long clientID = demande.getClient().getId();
+         String clientName = demande.getClient().getUser().getFirstname() +" " + demande.getClient().getUser().getLastname();
+         DemandeDto demandeDto = DemandeDto.builder()
+                 .id(demande.getId())
+                 .description(demande.getDescription())
+                 .status(String.valueOf(demande.getStatus()))
+                 .date(demande.getDate()).
+                 clientid(clientID).clientName(clientName)
+                 .build();
+         return demandeDto;
     }
+
+   public DemandeDto findDemandeById(long id){
+       Demande demande = demandeRepository.findById(id).orElse(null);
+       if (demande == null) {
+           return null; // Or handle the case where no demande is found
+       }
+       return convertToDTO(demande);
+   }
+
+
 
 }
