@@ -31,4 +31,9 @@ public class DemandeService {
         demande.setClient(client);
         return demande;
     }
+    public Demande findDemandeById(long id) {
+        Demande demande = demandeRepository.findById(id).orElse( null);
+        return demande;
+    }
+
 }
