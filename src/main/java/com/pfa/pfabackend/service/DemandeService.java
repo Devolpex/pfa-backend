@@ -11,6 +11,8 @@ import com.pfa.pfabackend.repository.DemandeRepository;
 import com.pfa.pfabackend.request.demande.DemandeCreateRequest;
 import com.pfa.pfabackend.request.demande.DemandeUpdateRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.Optional;
@@ -82,6 +84,10 @@ public class DemandeService {
    }
 
 
+    public Page<DemandeDto> getDemandesByPagination(Pageable pageable) {
+        Page<Demande> demandes = demandeRepository.findAll(pageable);
+        return demandes.map(this::convertToDTO);
+    }
 
 }
 
