@@ -47,4 +47,6 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ProfileResponse.builder().errors(Collections.singletonList("Unauthorized")).build());
     }
 
+    
+
 }
