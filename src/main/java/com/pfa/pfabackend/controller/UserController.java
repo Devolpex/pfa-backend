@@ -30,10 +30,10 @@ public class UserController {
     private final UserService userService;
     private final JwtService jwtService;
 
+
+    // Get user infos by email
     @GetMapping("/profile")
-    @PreAuthorize("hasAuthority('ADMIN', 'CLIENT')")
-    public ResponseEntity<ProfileResponse> getUserInfosByUsername(@RequestBody ProfileRequest request) {
-        String token = request.getToken();
+    public ResponseEntity<ProfileResponse> getUserInfosByUsername(@RequestParam String token) {
         String userEmail = jwtService.extractUsername(token);
         if (userEmail != null) {
             try {
