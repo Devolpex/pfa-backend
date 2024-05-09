@@ -9,9 +9,11 @@ import com.pfa.pfabackend.model.Client;
 import com.pfa.pfabackend.model.Demande;
 import com.pfa.pfabackend.repository.DemandeRepository;
 import com.pfa.pfabackend.request.demande.DemandeCreateRequest;
+import com.pfa.pfabackend.request.demande.DemandeUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -53,6 +55,24 @@ public class DemandeService {
          return demandeDto;
     }
 
+
+
+
+    public boolean updateDemande(Long id, DemandeUpdateRequest updateRequest) {
+        Optional<Demande> demandeOptional = demandeRepository.findById(id);
+
+        if (demandeOptional.isPresent()) {
+            Demande demande = demandeOptional.get();
+            demande.setDescription(updateRequest.getDescription());
+            demande.setType(DemandeType.valueOf(updateRequest.getType_demande()));
+            demandeRepository.save(demande);
+            return true; // Successfully updated demande
+        } else {
+            return false; // Demande with the given ID not found
+        }
+    }
+
+
    public DemandeDto findDemandeById(long id){
        Demande demande = demandeRepository.findById(id).orElse(null);
        if (demande == null) {
@@ -64,3 +84,4 @@ public class DemandeService {
 
 
 }
+
