@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.pfa.pfabackend.Exception.NotFoundException;
 import com.pfa.pfabackend.Exception.UserNotFoundException;
+import com.pfa.pfabackend.dto.user.UserDTO;
 import com.pfa.pfabackend.model.User;
 import com.pfa.pfabackend.repository.UserRepository;
 
@@ -54,5 +56,28 @@ public class UserService {
             return user.getPassword();
         }
         return null; 
+    }
+
+
+    public UserDTO findUserByEmail(String email) {
+        User user = repository.findByEmail(email).orElse(null);
+
+        if (user == null) {
+            throw new NotFoundException("User not found with email :  " + email);
+        }
+        return this.convertToUserDTO(user) ;
+
+    }
+
+    private UserDTO convertToUserDTO(User user) {
+        return UserDTO.builder()
+                .id(user.getId())
+                .lastname(user.getLastname())
+                .firstname(user.getFirstname())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .image(user.getImage())
+                .created_at(user.getCreated_at())
+                .build();
     }
 }

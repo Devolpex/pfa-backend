@@ -32,6 +32,7 @@ public class SecurityConfig {
                         .requestMatchers(WHITE_LIST_URL).permitAll()  // Permit all requests that match the whitelist
                         .requestMatchers("/api/clients/**").hasAuthority("ADMIN")  // Admin access for /api/clients
                         .requestMatchers("/api/admins/**").hasAnyAuthority("ADMIN")
+                        .requestMatchers("/api/users/**").hasAnyAuthority("ADMIN", "CLIENT")
                         .anyRequest().authenticated()  // All other requests must be authenticated
                 )
                 .sessionManagement(sessionManagement ->
