@@ -15,9 +15,9 @@ public class DemandeCreateRequest {
     private String description;
 
     @NotBlank(message = "Type demande cannot be empty")
-    private String typeDemande;
+    private String type;
 
-    private int clientId;
+    private Long clientId;
 
 
 }
