@@ -20,5 +20,7 @@ public interface ClientRepository extends JpaRepository<Client,Long> {
     @Query("SELECT c FROM Client c WHERE c.user.email LIKE %:search% OR c.user.firstname LIKE %:search% OR c.user.lastname LIKE %:search%")
     Page<Client> findByEmailOrFirstNameOrLastName(String search, Pageable pageable);
 
+    Client findByUserId(Long id);
+
 
 }
