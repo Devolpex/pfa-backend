@@ -31,10 +31,10 @@ public class DemandeService {
     private Demande convertRequestToEntity(DemandeCreateRequest request)  {
         Demande demande = new Demande();
         demande.setDescription(request.getDescription());
-        demande.setType(DemandeType.valueOf(request.getType_demande()));
+        demande.setType(DemandeType.valueOf(request.getTypeDemande()));
         demande.setDate(new java.sql.Date(new Date().getTime()));
         demande.setStatus(DemandeStatus.PENDING);
-        Client client = clientService.findClientById(request.getClient_id());
+        Client client = clientService.findClientById(request.getClientId());
         demande.setClient(client);
         return demande;
     }
@@ -52,7 +52,7 @@ public class DemandeService {
                  .description(demande.getDescription())
                  .status(String.valueOf(demande.getStatus()))
                  .date(demande.getDate()).
-                 clientid(clientID).clientName(clientName)
+                 clientId(clientID).clientName(clientName)
                  .build();
          return demandeDto;
     }
@@ -66,7 +66,7 @@ public class DemandeService {
         if (demandeOptional.isPresent()) {
             Demande demande = demandeOptional.get();
             demande.setDescription(updateRequest.getDescription());
-            demande.setType(DemandeType.valueOf(updateRequest.getType_demande()));
+            demande.setType(DemandeType.valueOf(updateRequest.getTypeDemande()));
             demandeRepository.save(demande);
             return true; // Successfully updated demande
         } else {

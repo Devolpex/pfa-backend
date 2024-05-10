@@ -17,7 +17,7 @@ public class DemandeDto {
     private String description;
     private Date date;
     private String status;
-    private long clientid;
+    private long clientId;
     private String clientName;
 
 
