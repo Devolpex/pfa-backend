@@ -16,8 +16,8 @@ public class DemandeUpdateRequest {
     private String description;
 
     @NotBlank(message = "Type demande cannot be empty")
-    private String typeDemande;
+    private String type;
 
     @NotNull(message = "Client id empty")
-    private int clientId;
+    private Long clientId;
 }
