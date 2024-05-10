@@ -7,7 +7,11 @@ import org.springframework.stereotype.Service;
 import com.pfa.pfabackend.Exception.NotFoundException;
 import com.pfa.pfabackend.Exception.UserNotFoundException;
 import com.pfa.pfabackend.dto.user.UserDTO;
+import com.pfa.pfabackend.enums.Role;
+import com.pfa.pfabackend.model.Client;
 import com.pfa.pfabackend.model.User;
+import com.pfa.pfabackend.repository.AdminRepository;
+import com.pfa.pfabackend.repository.ClientRepository;
 import com.pfa.pfabackend.repository.UserRepository;
 
 import java.util.List;
@@ -17,6 +21,8 @@ import java.util.List;
 public class UserService {
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
+    private final ClientRepository clientRepository;
+    private final AdminRepository adminRepository;
 
     
 
@@ -78,6 +84,8 @@ public class UserService {
                 .phone(user.getPhone())
                 .image(user.getImage())
                 .created_at(user.getCreated_at())
+                .role(user.getRole())
+                .clientId(user.getClient().getId())
                 .build();
     }
 }
