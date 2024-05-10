@@ -88,4 +88,6 @@ public class UserService {
                 .clientId(user.getClient().getId())
                 .build();
     }
+
+    
 }
