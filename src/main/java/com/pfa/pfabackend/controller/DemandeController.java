@@ -1,15 +1,22 @@
 package com.pfa.pfabackend.controller;
 
+import com.pfa.pfabackend.dto.client.ClientDto;
 import com.pfa.pfabackend.dto.demande.DemandeDto;
 import com.pfa.pfabackend.model.Demande;
 import com.pfa.pfabackend.request.demande.DemandeUpdateRequest;
+import com.pfa.pfabackend.response.client.ClientPageResponse;
 import com.pfa.pfabackend.response.client.ClientUpdateResponse;
+import com.pfa.pfabackend.response.demande.DemandePageResponse;
 import com.pfa.pfabackend.response.demande.DemandeUpdateResponse;
 import com.pfa.pfabackend.response.demande.GetDemandeResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import com.pfa.pfabackend.request.demande.DemandeCreateRequest;
@@ -126,6 +133,20 @@ public class DemandeController {
         }
 
 
+    }
+
+    //Get all demamdes
+    @GetMapping
+//    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<DemandePageResponse> getDemandesByPagination(@RequestParam(defaultValue = "1") int page) {
+        int size = 5;
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<DemandeDto> demandePage = demandeService.getDemandesByPagination(pageable);
+        return ResponseEntity.status(HttpStatus.OK).body(DemandePageResponse.builder()
+                .demandes(demandePage.getContent())
+                .currentPage(demandePage.getNumber() + 1)
+                .totalPages(demandePage.getTotalPages())
+                .build());
     }
 }
 
