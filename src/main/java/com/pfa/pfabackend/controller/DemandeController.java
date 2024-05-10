@@ -56,7 +56,7 @@ public class DemandeController {
 
         try {
 
-            if (clientService.findClientById(request.getClient_id()) == null) {
+            if (clientService.findClientById(request.getClientId()) == null) {
                 errors.add("Client does not exist");
                 return ResponseEntity.badRequest().body(DemandeCreateResponse.builder().errors(errors).build());
             }
@@ -98,7 +98,7 @@ public class DemandeController {
                     .errors(Collections.singletonList("demande not found")).build());
         } else {
 
-            if (demande.getClientid() != request.getClient_id()) {
+            if (demande.getClientId() != request.getClientId()) {
                 // If the client is not the owner of the demande, return an error response
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(DemandeUpdateResponse.builder().errors(Collections.singletonList("Client is not the owner of the demande")).build());
