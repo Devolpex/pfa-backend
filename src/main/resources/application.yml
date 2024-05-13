@@ -7,9 +7,11 @@ spring:
     import: optional:configserver:http://localhost:8888
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/pfadb?createDatabaseIfNotExist=true&characterEncoding=UTF-8&useUnicode=true&useSSL=false&allowPublicKeyRetrieval=true
-    username: marouane
-    password: Marouane@2001
+
+    url: jdbc:mysql://localhost:3306/usersdb
+    username: root
+    password: root@@0603
+
   jpa:
     hibernate:
       ddl-auto: update

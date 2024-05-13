@@ -10,5 +10,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface DemandeRepository extends JpaRepository<Demande, Long> {
 
     Page<Demande> findAll(Pageable pageable);
+    Page<Demande> findDemandesByClient_Id(Long clientId, Pageable pageable);
 
 }
