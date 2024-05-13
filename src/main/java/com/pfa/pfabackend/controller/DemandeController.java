@@ -2,8 +2,10 @@ package com.pfa.pfabackend.controller;
 
 import com.pfa.pfabackend.dto.client.ClientDto;
 import com.pfa.pfabackend.dto.demande.DemandeDto;
+import com.pfa.pfabackend.enums.DemandeStatus;
 import com.pfa.pfabackend.model.Demande;
 import com.pfa.pfabackend.request.demande.DemandeUpdateRequest;
+import com.pfa.pfabackend.request.demande.DemandeUpdateStatusRequest;
 import com.pfa.pfabackend.response.client.ClientPageResponse;
 import com.pfa.pfabackend.response.client.ClientUpdateResponse;
 import com.pfa.pfabackend.response.demande.DemandePageResponse;
@@ -160,6 +162,26 @@ public class DemandeController {
                 .currentPage(demandePage.getNumber() + 1)
                 .totalPages(demandePage.getTotalPages())
                 .build());
+    }
+
+    @PutMapping("/{id}/status")
+    public ResponseEntity<DemandeUpdateResponse> updateDemandeStatus(
+            @PathVariable("id") Long id,
+            @RequestBody DemandeUpdateStatusRequest request) {
+        DemandeStatus newStatus = request.getStatus();
+
+        // Call service method to update the status of the demand with the given ID
+        boolean updated = demandeService.updateDemandeStatus(id, newStatus);
+
+        if (updated) {
+            return ResponseEntity.ok(DemandeUpdateResponse.builder()
+                    .success("Demande updated status  successfully")
+                    .redirectTo("/demandes")
+                    .build());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(DemandeUpdateResponse.builder().errors(Collections.singletonList("Demande not found")).build());
+        }
     }
 }
 
