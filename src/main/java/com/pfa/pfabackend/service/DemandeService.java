@@ -93,6 +93,17 @@ public class DemandeService {
         Page<Demande> demandes = demandeRepository.findDemandesByClient_Id(id,pageable);
         return demandes.map(this::convertToDTO);
     }
+    public boolean updateDemandeStatus(Long id, DemandeStatus newStatus) {
+        Optional<Demande> demandeOptional = demandeRepository.findById(id);
+        if (demandeOptional.isPresent()) {
+            Demande demande = demandeOptional.get();
+            demande.setStatus(newStatus);
+            demandeRepository.save(demande);
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 }
 
