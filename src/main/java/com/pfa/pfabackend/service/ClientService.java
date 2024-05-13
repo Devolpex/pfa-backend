@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.pfa.pfabackend.dto.user.ClientDto;
+import com.pfa.pfabackend.dto.client.ClientDto;
 import com.pfa.pfabackend.dto.user.UserDTO;
 import com.pfa.pfabackend.enums.Auth;
 import com.pfa.pfabackend.enums.Role;
@@ -17,7 +17,6 @@ import com.pfa.pfabackend.repository.UserRepository;
 import com.pfa.pfabackend.request.client.ClientCreateRequest;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import lombok.RequiredArgsConstructor;
@@ -27,12 +26,18 @@ import lombok.RequiredArgsConstructor;
 public class ClientService {
     private final ClientRepository clientRepository;
     private final UserRepository userRepository;
-    private final UserService userService;
     private final PasswordEncoder passwordEncoder;
 
+    // Get all clients
+    public List<Client> getAllClients() {
+        return clientRepository.findAll();
+    }
+
+    // Save client
     public void saveClient(ClientCreateRequest request) {
         // Formule the data
-        request.setFirstname(request.getFirstname().substring(0, 1).toUpperCase() + request.getFirstname().substring(1));
+        request.setFirstname(
+                request.getFirstname().substring(0, 1).toUpperCase() + request.getFirstname().substring(1));
         request.setLastname(request.getLastname().substring(0, 1).toUpperCase() + request.getLastname().substring(1));
         request.setEmail(request.getEmail().toLowerCase());
         // Bycrypt Password
@@ -58,7 +63,8 @@ public class ClientService {
         clientRepository.save(client);
     }
 
-    public boolean checkIsAuthByEmail(String email){
+    // Check if the client is authenticated by email
+    public boolean checkIsAuthByEmail(String email) {
         Auth authType = clientRepository.findAuthByEmail(email);
         if (authType != Auth.EMAIL) {
             return false;
@@ -67,15 +73,15 @@ public class ClientService {
 
     }
 
-    public Client findClientByEmail(String email){
+    // Find client by email
+    public Client findClientByEmail(String email) {
         Client client = clientRepository.findByUserEmail(email);
         return client;
     }
-    public List<Client> getAllClients(){
-        return clientRepository.findAll();
-    }
 
 
+
+    // Convert client to DTO
     private ClientDto convertToDTO(Client client) {
         UserDTO user = UserDTO.builder()
                 .id(client.getUser().getId())
@@ -94,6 +100,7 @@ public class ClientService {
         return clientDto;
     }
 
+    // Find client by id
     public Client findClientById(long id) {
         Client query = clientRepository.findById(id).orElse(null);
         if (query == null) {
@@ -109,13 +116,14 @@ public class ClientService {
                 .created_at(query.getUser().getCreated_at())
                 .build();
         Client client = Client.builder()
-            .id(query.getId())
-            .auth(query.getAuth())
-            .user(user)
-            .build();
+                .id(query.getId())
+                .auth(query.getAuth())
+                .user(user)
+                .build();
         return client;
     }
 
+    // Delete client
     public boolean deleteClient(long id) {
         Client client = clientRepository.findById(id).orElse(null);
         if (client != null) {
@@ -124,16 +132,19 @@ public class ClientService {
         }
         return false;
     }
+
     public Page<ClientDto> getClientsByPagination(Pageable pageable) {
         Page<Client> clients = clientRepository.findAll(pageable);
         return clients.map(this::convertToDTO);
     }
-    //search client by email first or last name
+
+    // search client by email first or last name
     public Page<ClientDto> searchClients(String search, Pageable pageable) {
         Page<Client> clients = clientRepository.findByEmailOrFirstNameOrLastName(search, pageable);
         return clients.map(this::convertToDTO);
     }
 
+    // Update client
     public void updateClient(Long id, Client client) {
         User user = client.getUser();
         user.setUpdate_at(new Date());
@@ -141,5 +152,3 @@ public class ClientService {
     }
 
 }
-
-

@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-pfa-backend-deployment
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-pfa-backend
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-pfa-backend
+    spec:
+      containers:
+          - name: {{ .Release.Name }}-pfa-backend-container
+            image: {{ .Values.pfaBackend.image.repository }}:{{ .Values.pfaBackend.image.tag }}
+            imagePullPolicy: {{ .Values.pfaBackend.image.pullPolicy }}
+            ports:
+              - containerPort: 8024
+            env:
+              - name: PFA_BACKEND_DATASOURCE_URL
+                value: {{ include "my-pfa-backend.fullMySQLConnectionURL" . | quote }}
+              - name: PFA_BACKEND_DATASOURCE_USERNAME
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ .Release.Name }}-mysql-username
+                    key: username
+              - name: PFA_BACKEND_DATASOURCE_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ .Release.Name }}-mysql-password
+                    key: password

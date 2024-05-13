@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.Base64;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -15,10 +14,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class FileService {
 
-    public static boolean checkIfImage(String base64String) {
-        // Check if the base64 string starts with a valid image header
-        return StringUtils.startsWithIgnoreCase(base64String, "data:image/");
-    }
+    // public static boolean checkIfImage(String base64String) {
+    //     // Check if the base64 string starts with a valid image header
+    //     return StringUtils.startsWithIgnoreCase(base64String, "data:image/");
+    // }
 
     public File convertToImage(String base64String, long id) throws IOException {
         // Decode base64 string to byte array

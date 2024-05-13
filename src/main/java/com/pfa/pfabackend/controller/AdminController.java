@@ -18,7 +18,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -31,7 +30,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,13 +45,34 @@ import org.springframework.web.bind.annotation.PutMapping;
 @RestController
 @RequestMapping("/api/admins")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "http://localhost:3000")
 public class AdminController {
     private final UserService userService;
     private final AdminService adminService;
-    // private final FileService fileService;
-    private final PasswordEncoder passwordEncoder;
 
+    // Get all admins
+    @GetMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<AdminPageResponse> getAdminsByPagination(@RequestParam(defaultValue = "1") int page) {
+        int size = 5;
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Admin> adminPage = adminService.getAdminsByPagination(pageable);
+        return ResponseEntity.status(HttpStatus.OK).body(AdminPageResponse.builder()
+                .admins(adminPage.getContent())
+                .currentPage(adminPage.getNumber() + 1)
+                .totalPages(adminPage.getTotalPages())
+                .build());
+    }
+
+    // Get admin by id
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<Admin> getAdminById(@PathVariable Long id) {
+        Admin admin = adminService.findAdminById(id);
+        return ResponseEntity.ok(admin);
+    }
+
+    // Create admin
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -72,17 +91,18 @@ public class AdminController {
             errors.add("Password confirmation does not match");
         }
         if (!errors.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(AdminCreateResponse.builder().errors(errors).build());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(AdminCreateResponse.builder().errors(errors).build());
         }
         User user = User.builder()
-            .firstname(userService.firstLetterToUpperCase(request.getFirstname()))
-            .lastname(userService.firstLetterToUpperCase(request.getLastname()))
-            .email(request.getEmail().toUpperCase())
-            .phone(request.getPhone())
-            .password(userService.bcryptPassword(request.getPassword()))
-            .role(Role.ADMIN)
-            .created_at(new Date())
-            .build();
+                .firstname(userService.firstLetterToUpperCase(request.getFirstname()))
+                .lastname(userService.firstLetterToUpperCase(request.getLastname()))
+                .email(request.getEmail().toUpperCase())
+                .phone(request.getPhone())
+                .password(userService.bcryptPassword(request.getPassword()))
+                .role(Role.ADMIN)
+                .created_at(new Date())
+                .build();
 
         adminService.saveAdmin(user);
 
@@ -91,14 +111,8 @@ public class AdminController {
                 .redirectTo("/admins")
                 .build());
     }
-
-    @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<Admin> getAdminById(@PathVariable Long id) {
-        Admin admin = adminService.findAdminById(id);
-        return ResponseEntity.ok(admin);
-    }
-
+    
+    // Update admin
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<AdminUpdateResponse> putAdmin(@PathVariable Long id,
@@ -123,7 +137,8 @@ public class AdminController {
                 }
             }
             if (!errors.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(AdminUpdateResponse.builder().errors(errors).build());
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(AdminUpdateResponse.builder().errors(errors).build());
             }
 
             User user = admin.getUser();
@@ -138,11 +153,12 @@ public class AdminController {
             adminService.updateAdmin(id, admin);
         }
         return ResponseEntity.ok(AdminUpdateResponse.builder()
-        .success("Admin updated successfully")
-        .redirectTo("/admins")
-        .build());
+                .success("Admin updated successfully")
+                .redirectTo("/admins")
+                .build());
     }
 
+    // Delete admin
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<AdminDeleteResponse> deleteAdmin(@PathVariable Long id) {
@@ -159,19 +175,6 @@ public class AdminController {
                 .success("Admin deleted successfully")
                 .redirectTo("/admins")
                 .build());
-    }
-
-    @GetMapping
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<AdminPageResponse> getAdminsByPagination(@RequestParam(defaultValue = "1") int page){
-        int size = 5;
-        Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Admin> adminPage = adminService.getAdminsByPagination(pageable);
-        return ResponseEntity.status(HttpStatus.OK).body(AdminPageResponse.builder()
-            .admins(adminPage.getContent())
-            .currentPage(adminPage.getNumber() + 1)
-            .totalPages(adminPage.getTotalPages())
-            .build());
     }
 
 }
