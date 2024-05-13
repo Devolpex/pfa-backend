@@ -89,6 +89,10 @@ public class DemandeService {
         Page<Demande> demandes = demandeRepository.findAll(pageable);
         return demandes.map(this::convertToDTO);
     }
+    public Page<DemandeDto> findDemandesByClient_Id(Long id,Pageable pageable) {
+        Page<Demande> demandes = demandeRepository.findDemandesByClient_Id(id,pageable);
+        return demandes.map(this::convertToDTO);
+    }
 
 }
 

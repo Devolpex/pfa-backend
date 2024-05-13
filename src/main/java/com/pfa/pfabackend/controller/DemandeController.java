@@ -148,6 +148,19 @@ public class DemandeController {
                 .totalPages(demandePage.getTotalPages())
                 .build());
     }
+
+    @GetMapping("/client/{id}")
+//    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<DemandePageResponse> findDemandesByClient_Id(@PathVariable Long id,@RequestParam(defaultValue = "1") int page) {
+        int size = 5;
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<DemandeDto> demandePage = demandeService.findDemandesByClient_Id(id,pageable);
+        return ResponseEntity.status(HttpStatus.OK).body(DemandePageResponse.builder()
+                .demandes(demandePage.getContent())
+                .currentPage(demandePage.getNumber() + 1)
+                .totalPages(demandePage.getTotalPages())
+                .build());
+    }
 }
 
 
