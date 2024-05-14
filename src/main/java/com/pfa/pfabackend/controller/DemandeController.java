@@ -3,14 +3,14 @@ package com.pfa.pfabackend.controller;
 import com.pfa.pfabackend.dto.client.ClientDto;
 import com.pfa.pfabackend.dto.demande.DemandeDto;
 import com.pfa.pfabackend.enums.DemandeStatus;
+import com.pfa.pfabackend.model.Client;
 import com.pfa.pfabackend.model.Demande;
 import com.pfa.pfabackend.request.demande.DemandeUpdateRequest;
 import com.pfa.pfabackend.request.demande.DemandeUpdateStatusRequest;
+import com.pfa.pfabackend.response.client.ClientDeleteResponse;
 import com.pfa.pfabackend.response.client.ClientPageResponse;
 import com.pfa.pfabackend.response.client.ClientUpdateResponse;
-import com.pfa.pfabackend.response.demande.DemandePageResponse;
-import com.pfa.pfabackend.response.demande.DemandeUpdateResponse;
-import com.pfa.pfabackend.response.demande.GetDemandeResponse;
+import com.pfa.pfabackend.response.demande.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,7 +22,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import com.pfa.pfabackend.request.demande.DemandeCreateRequest;
-import com.pfa.pfabackend.response.demande.DemandeCreateResponse;
 import com.pfa.pfabackend.service.ClientService;
 import com.pfa.pfabackend.service.DemandeService;
 
@@ -182,6 +181,23 @@ public class DemandeController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(DemandeUpdateResponse.builder().errors(Collections.singletonList("Demande not found")).build());
         }
+    }
+    @DeleteMapping("/{id}")
+    //@PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<DemandeDeleteResponse> deleteDemande(@PathVariable Long id) {
+        DemandeDto demande = demandeService.findDemandeById(id);
+        if (demande == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(DemandeDeleteResponse.builder()
+                    .errors(Collections.singletonList("Demande not found")).build());
+        }
+        if (demandeService.deleteDemande(id) == false) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(DemandeDeleteResponse.builder()
+                    .errors(Collections.singletonList("Failed to delete demande")).build());
+        }
+        return ResponseEntity.ok(DemandeDeleteResponse.builder()
+                .success("Demande deleted successfully")
+                .redirectTo("/demandes")
+                .build());
     }
 }
 

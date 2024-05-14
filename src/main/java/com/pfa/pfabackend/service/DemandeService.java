@@ -105,5 +105,14 @@ public class DemandeService {
         }
     }
 
+    public boolean deleteDemande(long id) {
+        Demande demande = demandeRepository.findById(id).orElse(null);
+        if (demande != null) {
+            demandeRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+
 }
 
