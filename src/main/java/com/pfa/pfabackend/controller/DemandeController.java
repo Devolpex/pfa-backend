@@ -1,16 +1,10 @@
 package com.pfa.pfabackend.controller;
 
-import com.pfa.pfabackend.dto.client.ClientDto;
 import com.pfa.pfabackend.dto.demande.DemandeDto;
 import com.pfa.pfabackend.enums.DemandeStatus;
-import com.pfa.pfabackend.model.Demande;
 import com.pfa.pfabackend.request.demande.DemandeUpdateRequest;
 import com.pfa.pfabackend.request.demande.DemandeUpdateStatusRequest;
-import com.pfa.pfabackend.response.client.ClientPageResponse;
-import com.pfa.pfabackend.response.client.ClientUpdateResponse;
-import com.pfa.pfabackend.response.demande.DemandePageResponse;
-import com.pfa.pfabackend.response.demande.DemandeUpdateResponse;
-import com.pfa.pfabackend.response.demande.GetDemandeResponse;
+import com.pfa.pfabackend.response.demande.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,16 +12,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import com.pfa.pfabackend.request.demande.DemandeCreateRequest;
-import com.pfa.pfabackend.response.demande.DemandeCreateResponse;
 import com.pfa.pfabackend.service.ClientService;
 import com.pfa.pfabackend.service.DemandeService;
 
-
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -42,11 +32,11 @@ public class DemandeController {
     private final DemandeService demandeService;
     private final ClientService clientService;
 
+    // Create a demande
     @PostMapping
-//    @PreAuthorize("hasAuthority('CLIENT')")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<DemandeCreateResponse> createDemande(@RequestBody @Valid DemandeCreateRequest request,
-                                                               BindingResult bindingResult) {
+            BindingResult bindingResult) {
         List<String> errors = new ArrayList<>();
         if (bindingResult.hasErrors()) {
             errors = bindingResult.getAllErrors().stream()
@@ -71,9 +61,8 @@ public class DemandeController {
         }
     }
 
-
+    // Get demande by id
     @GetMapping("/{id}")
-//@PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<GetDemandeResponse> getDemandeById(@PathVariable Long id) {
         DemandeDto demande = demandeService.findDemandeById(id);
         List<String> errors = new ArrayList<>();
@@ -81,17 +70,18 @@ public class DemandeController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(GetDemandeResponse.builder()
                     .errors(Collections.singletonList("Demande not found")).build());
         }
-        // No need for bindingResult.hasErrors() check here since we don't have BindingResult
+        // No need for bindingResult.hasErrors() check here since we don't have
+        // BindingResult
         return ResponseEntity.status(HttpStatus.OK).body(GetDemandeResponse.builder()
                 .demande(demande)
                 .build());
     }
 
+    // Update a demande
     @PutMapping("/{id}")
     public ResponseEntity<DemandeUpdateResponse> updateDemande(@PathVariable Long id,
-                                                               @RequestBody @Valid DemandeUpdateRequest request, BindingResult bindingResult) {
+            @RequestBody @Valid DemandeUpdateRequest request, BindingResult bindingResult) {
         List<String> errors = new ArrayList<>();
-
 
         DemandeDto demande = demandeService.findDemandeById(id);
 
@@ -103,7 +93,8 @@ public class DemandeController {
             if (demande.getClientId() != request.getClientId()) {
                 // If the client is not the owner of the demande, return an error response
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(DemandeUpdateResponse.builder().errors(Collections.singletonList("Client is not the owner of the demande")).build());
+                        .body(DemandeUpdateResponse.builder()
+                                .errors(Collections.singletonList("Client is not the owner of the demande")).build());
             }
 
             // If the client is the owner, proceed with updating the demande
@@ -124,7 +115,8 @@ public class DemandeController {
             if (!isUpdated) {
                 // If the demande was not updated successfully, return a not found response
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(DemandeUpdateResponse.builder().errors(Collections.singletonList("Demande not found")).build());
+                        .body(DemandeUpdateResponse.builder().errors(Collections.singletonList("Demande not found"))
+                                .build());
             }
 
             // If the demande was updated successfully, return a success response
@@ -134,12 +126,10 @@ public class DemandeController {
                     .build());
         }
 
-
     }
 
-    //Get all demamdes
+    // Get all demamdes
     @GetMapping
-//    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<DemandePageResponse> getDemandesByPagination(@RequestParam(defaultValue = "1") int page) {
         int size = 5;
         Pageable pageable = PageRequest.of(page - 1, size);
@@ -151,12 +141,13 @@ public class DemandeController {
                 .build());
     }
 
+    // Get demandes by client id
     @GetMapping("/client/{id}")
-//    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<DemandePageResponse> findDemandesByClient_Id(@PathVariable Long id,@RequestParam(defaultValue = "1") int page) {
+    public ResponseEntity<DemandePageResponse> findDemandesByClient_Id(@PathVariable Long id,
+            @RequestParam(defaultValue = "1") int page) {
         int size = 5;
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<DemandeDto> demandePage = demandeService.findDemandesByClient_Id(id,pageable);
+        Page<DemandeDto> demandePage = demandeService.findDemandesByClient_Id(id, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(DemandePageResponse.builder()
                 .demandes(demandePage.getContent())
                 .currentPage(demandePage.getNumber() + 1)
@@ -164,6 +155,7 @@ public class DemandeController {
                 .build());
     }
 
+    // Update demande status
     @PutMapping("/{id}/status")
     public ResponseEntity<DemandeUpdateResponse> updateDemandeStatus(
             @PathVariable("id") Long id,
@@ -180,9 +172,26 @@ public class DemandeController {
                     .build());
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(DemandeUpdateResponse.builder().errors(Collections.singletonList("Demande not found")).build());
+                    .body(DemandeUpdateResponse.builder().errors(Collections.singletonList("Demande not found"))
+                            .build());
         }
     }
+
+    // Delete a demande
+    @DeleteMapping("/{id}")
+    public ResponseEntity<DemandeDeleteResponse> deleteDemande(@PathVariable Long id) {
+        DemandeDto demande = demandeService.findDemandeById(id);
+        if (demande == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(DemandeDeleteResponse.builder()
+                    .errors(Collections.singletonList("Demande not found")).build());
+        }
+        if (demandeService.deleteDemande(id) == false) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(DemandeDeleteResponse.builder()
+                    .errors(Collections.singletonList("Failed to delete demande")).build());
+        }
+        return ResponseEntity.ok(DemandeDeleteResponse.builder()
+                .success("Demande deleted successfully")
+                .redirectTo("/demandes")
+                .build());
+    }
 }
-
-
