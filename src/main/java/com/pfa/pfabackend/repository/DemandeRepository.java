@@ -13,6 +13,7 @@ public interface DemandeRepository extends JpaRepository<Demande, Long> {
 //    @Query("SELECT p FROM Product p ORDER BY p.id DESC")
     @Query("SELECT d FROM Demande d ORDER BY d.id DESC ")
     Page<Demande> findAll(Pageable pageable);
+    @Query("SELECT d FROM Demande d ORDER BY d.id DESC ")
     Page<Demande> findDemandesByClient_Id(Long clientId, Pageable pageable);
 
 }
