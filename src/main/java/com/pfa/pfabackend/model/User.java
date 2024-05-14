@@ -38,6 +38,8 @@ public class User implements UserDetails {
     private Role role;
     @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
     private Client client;
+    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
+    private Admin admin;
     @OneToMany(mappedBy = "user")
     private List<Token> tokens;
 
