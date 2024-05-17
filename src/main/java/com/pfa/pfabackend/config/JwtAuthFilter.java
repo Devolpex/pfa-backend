@@ -14,7 +14,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.pfa.pfabackend.service.JwtService;
+import com.pfa.pfabackend.token.JwtService;
 
 import java.io.IOException;
 @Component
