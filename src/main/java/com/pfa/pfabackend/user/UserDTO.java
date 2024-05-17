@@ -2,7 +2,7 @@ package com.pfa.pfabackend.user;
 
 import lombok.*;
 
-import java.util.Date;
+import java.sql.Date;
 
 import com.pfa.pfabackend.user.enums.Role;
 @Data
@@ -11,6 +11,7 @@ import com.pfa.pfabackend.user.enums.Role;
 @NoArgsConstructor
 public class UserDTO {
     private long id;
+    private String username;
     private String lastname;
     private String firstname;
     private String email;
@@ -20,6 +21,7 @@ public class UserDTO {
     private Date created_at;
     private Long clientId;
     private Long adminId;
+    private String password;
 }
 
 

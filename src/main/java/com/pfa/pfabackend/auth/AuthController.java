@@ -5,13 +5,16 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import com.pfa.pfabackend.auth.https.req.CodeValidationRequest;
@@ -25,9 +28,14 @@ import com.pfa.pfabackend.auth.https.res.ForgetPasswordResponse;
 import com.pfa.pfabackend.auth.https.res.LoginResponse;
 import com.pfa.pfabackend.auth.https.res.NewPasswordResponse;
 import com.pfa.pfabackend.auth.services.AuthService;
+import com.pfa.pfabackend.basic.BasicException;
+import com.pfa.pfabackend.basic.BasicResponse;
+import com.pfa.pfabackend.basic.BasicValiadtion;
 import com.pfa.pfabackend.client.Client;
 import com.pfa.pfabackend.client.ClientService;
 import com.pfa.pfabackend.email.EmailService;
+import com.pfa.pfabackend.messages.Message;
+import com.pfa.pfabackend.messages.enums.MessageType;
 import com.pfa.pfabackend.token.JwtService;
 import com.pfa.pfabackend.user.enums.Role;
 import com.pfa.pfabackend.user.models.CodeConfirmation;
@@ -47,39 +55,26 @@ public class AuthController {
     private final EmailService emailService;
     private final CodeConfirmationService codeConfirmationService;
 
-    // Register a new user
-    @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody @Valid RegisterRequest request,
-            BindingResult bindingResult) {
-        List<String> errors = new ArrayList<>();
+    private final BasicValiadtion basicValiadtion;
 
-        if (bindingResult.hasErrors()) {
-            errors = bindingResult.getAllErrors().stream().map(error -> error.getDefaultMessage())
-                    .collect(Collectors.toList());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(AuthResponse.builder().errors(errors).build());
+    // Register a new user
+
+    @PostMapping("/register")
+    public ResponseEntity<BasicResponse> registerClient(@Valid @RequestBody RegisterRequest request,
+            BindingResult bindingResult) {
+        try {
+            BasicResponse response = authService.registerclient(request, bindingResult);
+            return ResponseEntity.status(response.getStatus())
+                    .body(BasicResponse.builder()
+                            .status(response.getStatus())
+                            .message(response.getMessage())
+                            .data(response.getData())
+                            .redirectTo(response.getRedirectTo())
+                            .build());
+        } catch (BasicException e) {
+            return ResponseEntity.status(e.getResponse().getStatus())
+                    .body(e.getResponse());
         }
-        if (userService.emailExists(request.getEmail())) {
-            errors.add("Email already exists");
-        }
-        if (!userService.confirmPassword(request.getPassword(), request.getConfirm_password())) {
-            errors.add("Password confirmation does not match");
-        }
-        if (!errors.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(AuthResponse.builder().errors(errors).build());
-        }
-        User user = User.builder()
-                .firstname(userService.firstLetterToUpperCase(request.getFirstname()))
-                .lastname(userService.firstLetterToUpperCase(request.getLastname()))
-                .email(request.getEmail().toUpperCase())
-                .phone(request.getPhone())
-                .password(userService.bcryptPassword(request.getPassword()))
-                .role(Role.CLIENT)
-                .created_at(new Date())
-                .build();
-        AuthResponse response = authService.register(user);
-        response.setSuccess("Registration successful");
-        response.setRedirectTo("/profile");
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     // Login a user

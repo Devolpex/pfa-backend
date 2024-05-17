@@ -1,21 +1,11 @@
 package com.pfa.pfabackend.admin;
 
 import java.util.Date;
-import java.util.List;
-
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import com.pfa.pfabackend.admin.https.req.AdminCreateRequest;
-import com.pfa.pfabackend.admin.https.req.AdminUpdateRequest;
 import com.pfa.pfabackend.user.data.UserRepository;
-import com.pfa.pfabackend.user.enums.Role;
 import com.pfa.pfabackend.user.models.User;
-import com.pfa.pfabackend.user.services.UserService;
-
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -23,8 +13,6 @@ import lombok.RequiredArgsConstructor;
 public class AdminService {
     private final AdminRepository adminRepository;
     private final UserRepository userRepository;
-    private final UserService userService;
-    private final PasswordEncoder passwordEncoder;
 
     public void saveAdmin(User user) {
         // Save user data
@@ -55,11 +43,12 @@ public class AdminService {
         return admin;
     }
 
-    public void updateAdmin(long id,Admin admin){
+    public void updateAdmin(long id, Admin admin) {
         User user = admin.getUser();
         user.setUpdate_at(new Date());
         userRepository.save(user);
     }
+
     public boolean deleteAdmin(long id) {
         Admin admin = adminRepository.findById(id).orElse(null);
         if (admin != null) {
@@ -72,8 +61,5 @@ public class AdminService {
     public Page<Admin> getAdminsByPagination(Pageable pageable) {
         return adminRepository.findAll(pageable);
     }
-
-
-
 
 }

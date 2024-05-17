@@ -9,6 +9,8 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import com.pfa.pfabackend.user.UserDTO;
+
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
@@ -18,20 +20,46 @@ import java.util.function.Function;
 @Service
 public class JwtService {
     private static final String SECRET_KEY = "QAR1At+Vv3rNXrmiHGcZ0tG3+EPgdkeVi/HqjgcUbf8WcgdgpCXDTjb7CnIv9WEL";
-    
+
+    // Extract username from token
     public String extractUsername(String token) {
-        return extractClaim(token,Claims::getSubject);
-    }
-    public String generateToken(UserDetails userDetails){
-        return generateToken(new HashMap<>(),userDetails);
+        return extractClaim(token, Claims::getSubject);
     }
 
+    // Extract email from token
+    public String extractEmail(String token) {
+        return extractClaim(token, claims -> claims.get("email", String.class));
+    }
 
+    // Extract role from token
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
+    }
+
+    public String generateToken(UserDetails userDetails) {
+        return generateToken(new HashMap<>(), userDetails);
+    }
+
+    // Create token with extra claims
+    public String createToken(UserDTO userDto) {
+
+        Map<String, Object> extracClaims = new HashMap<>();
+        extracClaims.put("email", userDto.getEmail());
+        extracClaims.put("role", userDto.getRole());
+        return Jwts
+                .builder()
+                .setClaims(extracClaims)
+                .setSubject(userDto.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
+                .signWith(getSignKey(), SignatureAlgorithm.HS256)
+                .compact();
+
+    }
 
     public String generateToken(
-            Map<String,Object> extracClaims,
-            UserDetails userDetails
-    ){
+            Map<String, Object> extracClaims,
+            UserDetails userDetails) {
         return Jwts
                 .builder()
                 .setClaims(extracClaims)
@@ -42,7 +70,7 @@ public class JwtService {
                 .compact();
     }
 
-    public boolean isTokenValid(String token,UserDetails userDetails){
+    public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
 
@@ -53,15 +81,16 @@ public class JwtService {
     }
 
     private Date extractExpiration(String token) {
-        return extractClaim(token,Claims::getExpiration);
+        return extractClaim(token, Claims::getExpiration);
     }
 
     // i dont understand this function
-    public <T> T extractClaim(String token, Function<Claims,T> claimsResolver){
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims cliams = extractAllClaims(token);
         return claimsResolver.apply(cliams);
     }
-    public Claims extractAllClaims(String token){
+
+    public Claims extractAllClaims(String token) {
         return Jwts
                 .parserBuilder()
                 .setSigningKey(getSignKey())

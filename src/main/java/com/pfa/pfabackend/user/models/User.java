@@ -12,8 +12,8 @@ import com.pfa.pfabackend.client.Client;
 import com.pfa.pfabackend.token.Token;
 import com.pfa.pfabackend.user.enums.Role;
 
+import java.sql.Date;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -28,6 +28,7 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    private String username;
     private String lastname;
     private String firstname;
     private String email;

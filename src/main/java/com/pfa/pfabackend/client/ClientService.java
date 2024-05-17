@@ -36,7 +36,7 @@ public class ClientService {
         request.setFirstname(
                 request.getFirstname().substring(0, 1).toUpperCase() + request.getFirstname().substring(1));
         request.setLastname(request.getLastname().substring(0, 1).toUpperCase() + request.getLastname().substring(1));
-        request.setEmail(request.getEmail().toLowerCase());
+        request.setEmail(request.getEmail().toUpperCase());
         // Bycrypt Password
         request.setPassword(passwordEncoder.encode(request.getPassword()));
         // Build user data

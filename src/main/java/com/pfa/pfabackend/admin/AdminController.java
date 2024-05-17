@@ -95,7 +95,7 @@ public class AdminController {
         User user = User.builder()
                 .firstname(userService.firstLetterToUpperCase(request.getFirstname()))
                 .lastname(userService.firstLetterToUpperCase(request.getLastname()))
-                .email(request.getEmail().toUpperCase())
+                .email(request.getEmail().toLowerCase())
                 .phone(request.getPhone())
                 .password(userService.bcryptPassword(request.getPassword()))
                 .role(Role.ADMIN)

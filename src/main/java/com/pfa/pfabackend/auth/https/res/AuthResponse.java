@@ -1,24 +1,19 @@
 package com.pfa.pfabackend.auth.https.res;
 
 
-import java.util.ArrayList;
-import java.util.List;
 
-import com.pfa.pfabackend.user.enums.Role;
+
+import com.pfa.pfabackend.basic.BasicResponse;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthResponse {
+public class AuthResponse extends BasicResponse {
     private String token;
-    private Role role;
-    private String success;
-    private String redirectTo;
-    private List<String> errors = new ArrayList<>();
+    
+
 }
