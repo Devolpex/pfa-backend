@@ -37,6 +37,7 @@ import com.pfa.pfabackend.email.EmailService;
 import com.pfa.pfabackend.messages.Message;
 import com.pfa.pfabackend.messages.enums.MessageType;
 import com.pfa.pfabackend.token.JwtService;
+import com.pfa.pfabackend.user.UserDTO;
 import com.pfa.pfabackend.user.enums.Role;
 import com.pfa.pfabackend.user.models.CodeConfirmation;
 import com.pfa.pfabackend.user.models.User;
@@ -60,7 +61,7 @@ public class AuthController {
     // Register a new user
 
     @PostMapping("/register")
-    public ResponseEntity<BasicResponse> registerClient(@Valid @RequestBody RegisterRequest request,
+    public ResponseEntity<BasicResponse> register(@Valid @RequestBody RegisterRequest request,
             BindingResult bindingResult) {
         try {
             BasicResponse response = authService.registerclient(request, bindingResult);
@@ -77,62 +78,80 @@ public class AuthController {
         }
     }
 
-    // Login a user
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request, BindingResult bindingResult) {
-        List<String> errors = new ArrayList<>();
-
-        if (bindingResult.hasErrors()) {
-            errors = bindingResult.getAllErrors().stream().map(error -> error.getDefaultMessage())
-                    .collect(Collectors.toList());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(LoginResponse.builder().errors(errors).build());
-        }
+    public ResponseEntity<BasicResponse> login(@Valid @RequestBody LoginRequest request,
+            BindingResult bindingResult) {
         try {
-            User user = authService.login(request);
-            if (user == null) {
-                throw new BadCredentialsException("Invalid email or password");
-            } else {
-                var jwtToken = jwtService.generateToken(user);
-                String redirectTo = new String();
-                if (user.getRole() == Role.CLIENT) {
-                    redirectTo = "/profile";
-                }
-                if (user.getRole() == Role.ADMIN) {
-                    redirectTo = "/clients";
-                }
-
-                return ResponseEntity.ok(LoginResponse.builder()
-                        .token(jwtToken)
-                        .role(user.getRole())
-                        .success("Login successful")
-                        .redirectTo(redirectTo)
-                        .build());
-            }
-
-        } catch (BadCredentialsException e) {
-            String errorMessage = e.getMessage();
-            if (errorMessage != null) {
-                // Check if the email exists in the database
-                String userPassword = userService.findPasswordByEmail(request.getEmail());
-                if (userService.emailExists(request.getEmail()) == false) {
-                    errors.add("Email does not exist");
-                } else if (authService.comparePasswords(request.getPassword(), userPassword) == false) {
-                    // Email exists but password is incorrect
-                    errors.add("Incorrect password");
-                }
-            }
-            if (!errors.isEmpty()) {
-                // Return errors in the response
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(LoginResponse.builder().errors(errors).build());
-            } else {
-                // If no specific errors are detected, return a generic error
-                errors.add(errorMessage);
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(LoginResponse.builder().errors(errors).build());
-            }
+            BasicResponse response = authService.login(request, bindingResult);
+            return ResponseEntity.status(response.getStatus())
+                    .body(BasicResponse.builder()
+                            .status(response.getStatus())
+                            .message(response.getMessage())
+                            .data(response.getData())
+                            .redirectTo(response.getRedirectTo())
+                            .build());
+        } catch (BasicException e) {
+            return ResponseEntity.status(e.getResponse().getStatus())
+                    .body(e.getResponse());
         }
     }
+
+    // Login a user
+    // @PostMapping("/login")
+    // public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request, BindingResult bindingResult) {
+    //     List<String> errors = new ArrayList<>();
+
+    //     if (bindingResult.hasErrors()) {
+    //         errors = bindingResult.getAllErrors().stream().map(error -> error.getDefaultMessage())
+    //                 .collect(Collectors.toList());
+    //         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(LoginResponse.builder().errors(errors).build());
+    //     }
+    //     try {
+    //         UserDTO user = authService.login(request);
+    //         if (user == null) {
+    //             throw new BadCredentialsException("Invalid email or password");
+    //         } else {
+    //             var jwtToken = jwtService.createToken(user);
+    //             String redirectTo = new String();
+    //             if (user.getRole() == Role.CLIENT) {
+    //                 redirectTo = "/profile";
+    //             }
+    //             if (user.getRole() == Role.ADMIN) {
+    //                 redirectTo = "/clients";
+    //             }
+
+    //             return ResponseEntity.ok(LoginResponse.builder()
+    //                     .token(jwtToken)
+    //                     .role(user.getRole())
+    //                     .success("Login successful")
+    //                     .redirectTo(redirectTo)
+    //                     .build());
+    //         }
+
+    //     } catch (BadCredentialsException e) {
+    //         String errorMessage = e.getMessage();
+    //         if (errorMessage != null) {
+    //             // Check if the email exists in the database
+    //             String userPassword = userService.findPasswordByEmail(request.getEmail());
+    //             if (userService.emailExists(request.getEmail()) == false) {
+    //                 errors.add("Email does not exist");
+    //             } else if (authService.comparePasswords(request.getPassword(), userPassword) == false) {
+    //                 // Email exists but password is incorrect
+    //                 errors.add("Incorrect password");
+    //             }
+    //         }
+    //         if (!errors.isEmpty()) {
+    //             // Return errors in the response
+    //             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+    //                     .body(LoginResponse.builder().errors(errors).build());
+    //         } else {
+    //             // If no specific errors are detected, return a generic error
+    //             errors.add(errorMessage);
+    //             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+    //                     .body(LoginResponse.builder().errors(errors).build());
+    //         }
+    //     }
+    // }
 
     // Forget password
     @PostMapping("/forget-password")

@@ -10,6 +10,8 @@ import java.util.Random;
 import org.aspectj.apache.bcel.classfile.Code;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -121,23 +123,73 @@ public class AuthService {
 
     }
 
+    public BasicResponse login(LoginRequest request, BindingResult bindingResult) throws BasicException {
+        Map<String, String> errors = new HashMap<>();
+
+        // Validate request
+        if (bindingResult.hasErrors()) {
+            BasicResponse response = BasicResponse.builder()
+                    .status(HttpStatus.BAD_REQUEST)
+                    .message(basicValiadtion.handleValidationErrors(bindingResult))
+                    .build();
+            throw new BasicException(response);
+        }
+
+        try {
+            // Authenticate the user
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+
+            // Retrieve the user details
+            User user = repository.findByEmail(request.getEmail()).orElseThrow(
+                    () -> new UsernameNotFoundException("User not found with email: " + request.getEmail()));
+
+            UserDTO userDTO = userService.buildToUserDTO(user);
+
+            // Generate JWT token
+            String jwtToken = jwtService.createToken(userDTO);
+
+            // Build the success response
+            Map<String, Object> data = new HashMap<>();
+            data.put("token", jwtToken);
+            data.put("role", user.getRole());
+            BasicResponse successResponse = BasicResponse.builder()
+                    .status(HttpStatus.OK)
+                    .message(Message.builder().message("Login successful").type(MessageType.SUCCESS).build())
+                    .data(data)
+                    .redirectTo("/profile")
+                    .build();
+
+            return successResponse;
+        } catch (AuthenticationException e) {
+            // Handle authentication failure
+            BasicResponse errorResponse = BasicResponse.builder()
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .message(Message.builder().message("Invalid email or password").type(MessageType.ERROR).build())
+                    .build();
+            throw new BasicException(errorResponse);
+        }
+    }
+
     // public AuthResponse register(User user) {
-    //     repository.save(user);
-    //     var jwtToken = jwtService.generateToken(user);
-    //     Client client = Client.builder().user(user).auth(Auth.EMAIL).build();
-    //     clientRepository.save(client);
-    //     return AuthResponse.builder().token(jwtToken).role(user.getRole()).build();
+    // repository.save(user);
+    // var jwtToken = jwtService.generateToken(user);
+    // Client client = Client.builder().user(user).auth(Auth.EMAIL).build();
+    // clientRepository.save(client);
+    // return AuthResponse.builder().token(jwtToken).role(user.getRole()).build();
     // }
 
-    public User login(LoginRequest request) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                request.getEmail(),
-                request.getPassword()));
-        var user = repository.findByEmail(request.getEmail()).orElseThrow();
-        // var jwtToken = jwtService.generateToken(user);
-        // return AuthResponse.builder().token(jwtToken).role(user.getRole()).build();
-        return user;
-    }
+    // public UserDTO login(LoginRequest request) {
+    // authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+    // request.getEmail(),
+    // request.getPassword()));
+    // User user = repository.findByEmail(request.getEmail()).orElseThrow();
+    // UserDTO userDTO = userService.buildToUserDTO(user);
+    // var jwtToken = jwtService.createToken(userDTO);
+    // // return
+    // AuthResponse.builder().token(jwtToken).role(user.getRole()).build();
+    // return userDTO;
+    // }
 
     public String generateCodeValidation() {
         // Generate a random 6-digit code
