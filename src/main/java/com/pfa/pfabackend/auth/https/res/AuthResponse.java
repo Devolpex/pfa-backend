@@ -1,19 +1,19 @@
 package com.pfa.pfabackend.auth.https.res;
 
-
-
-
-import com.pfa.pfabackend.basic.BasicResponse;
+import com.pfa.pfabackend.user.enums.Role;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthResponse extends BasicResponse {
+@Builder
+public class AuthResponse {
     private String token;
+    private Role role;
     
 
 }
