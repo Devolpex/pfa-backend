@@ -115,11 +115,14 @@ public class AuthService {
         userService.saveUser(userDTO);
         // return success response
         Map<String, String> message = new HashMap<>();
+        Map<String, Object> data = new HashMap<>();
+        data.put("token", token);
+        data.put("role", userDTO.getRole());
         message.put("success", "Registration successful");
         BasicResponse successResponse = BasicResponse.builder()
                 .status(HttpStatus.OK)
                 .message(Message.builder().messages(message).type(MessageType.SUCCESS).build())
-                .data(Map.of("token", token))
+                .data(data)
                 .redirectTo("/profile")
                 .build();
         return successResponse;
@@ -168,9 +171,12 @@ public class AuthService {
             return successResponse;
         } catch (AuthenticationException e) {
             // Handle authentication failure
+            Map<String, String> message = new HashMap<>();
+            message.put("email", "Invalid email");
+            message.put("password", "Invalid password");
             BasicResponse errorResponse = BasicResponse.builder()
                     .status(HttpStatus.UNAUTHORIZED)
-                    .message(Message.builder().message("Invalid email or password").type(MessageType.ERROR).build())
+                    .message(Message.builder().messages(message).type(MessageType.ERROR).build())
                     .build();
             throw new BasicException(errorResponse);
         }
