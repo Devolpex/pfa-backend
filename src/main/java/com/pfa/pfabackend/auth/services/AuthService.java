@@ -81,7 +81,7 @@ public class AuthService {
         }
         // Check if username already exists
         if (userService.usernameExists(request.getUsername())) {
-            errors.put("email", "Email already exists");
+            errors.put("username", "Username already exists");
             BasicResponse response = BasicResponse.builder()
                     .status(HttpStatus.BAD_REQUEST)
                     .message(Message.builder().messages(errors)
@@ -114,10 +114,13 @@ public class AuthService {
         // Save client
         userService.saveUser(userDTO);
         // return success response
+        Map<String, String> message = new HashMap<>();
+        message.put("success", "Registration successful");
         BasicResponse successResponse = BasicResponse.builder()
                 .status(HttpStatus.OK)
-                .message(Message.builder().message("Registration successful").type(MessageType.SUCCESS).build())
+                .message(Message.builder().messages(message).type(MessageType.SUCCESS).build())
                 .data(Map.of("token", token))
+                .redirectTo("/profile")
                 .build();
         return successResponse;
 
@@ -153,9 +156,11 @@ public class AuthService {
             Map<String, Object> data = new HashMap<>();
             data.put("token", jwtToken);
             data.put("role", user.getRole());
+            Map<String, String> message = new HashMap<>();
+            message.put("success", "Login successful");
             BasicResponse successResponse = BasicResponse.builder()
                     .status(HttpStatus.OK)
-                    .message(Message.builder().message("Login successful").type(MessageType.SUCCESS).build())
+                    .message(Message.builder().messages(message).type(MessageType.SUCCESS).build())
                     .data(data)
                     .redirectTo("/profile")
                     .build();
@@ -171,25 +176,6 @@ public class AuthService {
         }
     }
 
-    // public AuthResponse register(User user) {
-    // repository.save(user);
-    // var jwtToken = jwtService.generateToken(user);
-    // Client client = Client.builder().user(user).auth(Auth.EMAIL).build();
-    // clientRepository.save(client);
-    // return AuthResponse.builder().token(jwtToken).role(user.getRole()).build();
-    // }
-
-    // public UserDTO login(LoginRequest request) {
-    // authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-    // request.getEmail(),
-    // request.getPassword()));
-    // User user = repository.findByEmail(request.getEmail()).orElseThrow();
-    // UserDTO userDTO = userService.buildToUserDTO(user);
-    // var jwtToken = jwtService.createToken(userDTO);
-    // // return
-    // AuthResponse.builder().token(jwtToken).role(user.getRole()).build();
-    // return userDTO;
-    // }
 
     public String generateCodeValidation() {
         // Generate a random 6-digit code

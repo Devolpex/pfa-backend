@@ -41,58 +41,58 @@ public class UserService {
     private final PasswordService passwordService;
 
     // Change user password api service
-    // public Message changePassword(UpdatePasswordRequest request) throws
-    // BasicException {
-    // // Exctract user email from token
-    // String userEmail = jwtService.extractUsername(request.getToken());
-    // // Find userDetail by email
-    // UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
-    // // Validate token
-    // if (!jwtService.isTokenValid(request.getToken(), userDetails)) {
-    // throw new BasicException("Token is not valid", HttpStatus.UNAUTHORIZED);
-    // }
-    // // Check old password
-    // if (!passwordService.checkPassword(request.getOldPassword(),
-    // userDetails.getPassword())) {
-    // throw new BasicException("Old password is not valid",
-    // HttpStatus.BAD_REQUEST);
-    // }
-    // // Confirm new password
-    // if (!confirmPassword(request.getNewPassword(),
-    // request.getConfirmNewPassword())) {
-    // throw new BasicException("New password and confirm password are not the
-    // same", HttpStatus.BAD_REQUEST);
-    // }
-    // // Get User by email
-    // UserDTO userDTO = this.getUserByEmail(userEmail);
-    // // Bcrypt new password
-    // userDTO.setPassword(passwordService.bcryptPassword(request.getNewPassword()));
-    // // Update user password
-    // this.saveUser(userDTO);
-    // return Message.builder().message("Password updated
-    // successfully").type(MessageType.SUCCESS).build();
-    // }
+    public Message changePassword(UpdatePasswordRequest request) throws
+    BasicException {
+    // Exctract user email from token
+    String userEmail = jwtService.extractUsername(request.getToken());
+    // Find userDetail by email
+    UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+    // Validate token
+    if (!jwtService.isTokenValid(request.getToken(), userDetails)) {
+    throw new BasicException("Token is not valid", HttpStatus.UNAUTHORIZED);
+    }
+    // Check old password
+    if (!passwordService.checkPassword(request.getOldPassword(),
+    userDetails.getPassword())) {
+    throw new BasicException("Old password is not valid",
+    HttpStatus.BAD_REQUEST);
+    }
+    // Confirm new password
+    if (!confirmPassword(request.getNewPassword(),
+    request.getConfirmNewPassword())) {
+    throw new BasicException("New password and confirm password are not the
+    same", HttpStatus.BAD_REQUEST);
+    }
+    // Get User by email
+    UserDTO userDTO = this.getUserByEmail(userEmail);
+    // Bcrypt new password
+    userDTO.setPassword(passwordService.bcryptPassword(request.getNewPassword()));
+    // Update user password
+    this.saveUser(userDTO);
+    return Message.builder().message("Password updated
+    successfully").type(MessageType.SUCCESS).build();
+    }
 
     // Update user informatio api service
-    // public Message updateUserInfos(UpdateUserInfosRequest request) throws
-    // BasicException {
-    // // Exctract user email from token
-    // String userEmail = jwtService.extractUsername(request.getToken());
-    // // Find userDetail by email
-    // UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
-    // // Validate token
-    // if (!jwtService.isTokenValid(request.getToken(), userDetails)) {
-    // throw new BasicException("Token is not valid", HttpStatus.UNAUTHORIZED);
-    // }
-    // // Get user by email
-    // UserDTO userDTO = this.getUserByEmail(userEmail);
-    // // Update user informations
-    // this.updateUser(userDTO, request);
-    // // Return message
+    public Message updateUserInfos(UpdateUserInfosRequest request) throws
+    BasicException {
+    // Exctract user email from token
+    String userEmail = jwtService.extractUsername(request.getToken());
+    // Find userDetail by email
+    UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+    // Validate token
+    if (!jwtService.isTokenValid(request.getToken(), userDetails)) {
+    throw new BasicException("Token is not valid", HttpStatus.UNAUTHORIZED);
+    }
+    // Get user by email
+    UserDTO userDTO = this.getUserByEmail(userEmail);
+    // Update user informations
+    this.updateUser(userDTO, request);
+    // Return message
 
-    // return Message.builder().message("User informations updated
-    // successfully").type(MessageType.SUCCESS).build();
-    // }
+    return Message.builder().message("User informations updated successfully").type(MessageType.SUCCESS).build();
+
+    }
 
     // Find user by email and build to DTO
     public UserDTO getUserByEmail(String email) {
