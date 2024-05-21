@@ -14,13 +14,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class UpdateUserInfosRequest {
-    @NotBlank(message = "Token cannot be empty")
-    private String token;
+
     @NotNull(message = "Id cannot be null")
     private Long id;
-    @Pattern(regexp = "[a-zA-Z]+", message = "Username must contain only alphabetic characters")
-    @NotBlank(message = "Username cannot be empty")
-    private String username;
     @Pattern(regexp = "[a-zA-Z]+", message = "Last name must contain only alphabetic characters")
     @NotBlank(message = "Last Name cannot be empty")
     private String lastname;

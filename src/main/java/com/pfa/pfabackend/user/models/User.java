@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.pfa.pfabackend.admin.Admin;
 import com.pfa.pfabackend.client.Client;
+import com.pfa.pfabackend.file.images.Image;
 import com.pfa.pfabackend.token.Token;
 import com.pfa.pfabackend.user.enums.Role;
 
@@ -28,7 +29,6 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private String username;
     private String lastname;
     private String firstname;
     private String email;
@@ -46,6 +46,9 @@ public class User implements UserDetails {
     private Admin admin;
     @OneToMany(mappedBy = "user")
     private List<Token> tokens;
+
+    @OneToMany(mappedBy = "user")
+    private List<Image> images;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

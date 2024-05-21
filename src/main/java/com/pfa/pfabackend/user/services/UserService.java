@@ -7,11 +7,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 
 import com.pfa.pfabackend.admin.AdminRepository;
 import com.pfa.pfabackend.auth.services.PasswordService;
 import com.pfa.pfabackend.basic.BasicException;
 import com.pfa.pfabackend.basic.BasicResponse;
+import com.pfa.pfabackend.basic.BasicValiadtion;
 import com.pfa.pfabackend.client.Client;
 import com.pfa.pfabackend.client.ClientRepository;
 import com.pfa.pfabackend.exception.NotFoundException;
@@ -29,7 +31,9 @@ import com.pfa.pfabackend.user.models.User;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -39,58 +43,134 @@ public class UserService {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
     private final PasswordService passwordService;
+    private final BasicValiadtion basicValiadtion;
 
     // Change user password api service
-    public Message changePassword(UpdatePasswordRequest request) throws
-    BasicException {
-    // Exctract user email from token
-    String userEmail = jwtService.extractUsername(request.getToken());
-    // Find userDetail by email
-    UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
-    // Validate token
-    if (!jwtService.isTokenValid(request.getToken(), userDetails)) {
-    throw new BasicException("Token is not valid", HttpStatus.UNAUTHORIZED);
-    }
-    // Check old password
-    if (!passwordService.checkPassword(request.getOldPassword(),
-    userDetails.getPassword())) {
-    throw new BasicException("Old password is not valid",
-    HttpStatus.BAD_REQUEST);
-    }
-    // Confirm new password
-    if (!confirmPassword(request.getNewPassword(),
-    request.getConfirmNewPassword())) {
-    throw new BasicException("New password and confirm password are not the
-    same", HttpStatus.BAD_REQUEST);
-    }
-    // Get User by email
-    UserDTO userDTO = this.getUserByEmail(userEmail);
-    // Bcrypt new password
-    userDTO.setPassword(passwordService.bcryptPassword(request.getNewPassword()));
-    // Update user password
-    this.saveUser(userDTO);
-    return Message.builder().message("Password updated
-    successfully").type(MessageType.SUCCESS).build();
+    // public Message changePassword(UpdatePasswordRequest request) throws
+    // BasicException {
+    // // Exctract user email from token
+    // String userEmail = jwtService.extractUsername(request.getToken());
+    // // Find userDetail by email
+    // UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+    // // Validate token
+    // if (!jwtService.isTokenValid(request.getToken(), userDetails)) {
+    // throw new BasicException("Token is not valid", HttpStatus.UNAUTHORIZED);
+    // }
+    // // Check old password
+    // if (!passwordService.checkPassword(request.getOldPassword(),
+    // userDetails.getPassword())) {
+    // throw new BasicException("Old password is not valid",
+    // HttpStatus.BAD_REQUEST);
+    // }
+    // // Confirm new password
+    // if (!confirmPassword(request.getNewPassword(),
+    // request.getConfirmNewPassword())) {
+    // throw new BasicException("New password and confirm password are not the
+    // same", HttpStatus.BAD_REQUEST);
+    // }
+    // // Get User by email
+    // UserDTO userDTO = this.getUserByEmail(userEmail);
+    // // Bcrypt new password
+    // userDTO.setPassword(passwordService.bcryptPassword(request.getNewPassword()));
+    // // Update user password
+    // this.saveUser(userDTO);
+    // return Message.builder().message("Password updated
+    // successfully").type(MessageType.SUCCESS).build();
+    // }
+
+    // Update user informatio api service
+    public BasicResponse getUserInfos(String token) throws BasicException {
+        // Declare errors
+        Map<String, String> errors = new HashMap<>();
+        // Check if token is null
+        if (token == null) {
+            errors.put("token", "token is required");
+            BasicResponse response = BasicResponse.builder()
+                    .status(HttpStatus.BAD_REQUEST)
+                    .message(Message.builder().messages(errors)
+                            .type(MessageType.ERROR).build())
+                    .build();
+            throw new BasicException(response);
+        }
+        // Extract the username from the token
+        String email = jwtService.extractUsername(token);
+        // Find user details by username
+        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+        // Check if the token is valid
+        if (!jwtService.isTokenValid(token, userDetails)) {
+            errors.put("token", "token is not valid");
+            BasicResponse response = BasicResponse.builder()
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .message(Message.builder().messages(errors)
+                            .type(MessageType.ERROR).build())
+                    .build();
+            throw new BasicException(response);
+        }
+        // Get user informations by username
+        UserDTO userDTO = this.getUserByEmail(email);
+        // return response with user informations
+        Map<String,Object> data = new HashMap<>();
+        data.put("user", userDTO);
+        return BasicResponse.builder()
+                .status(HttpStatus.OK)
+                .message(Message.builder().messages(null)
+                        .type(MessageType.SUCCESS).build())
+                .data(data)
+                .build();
+
     }
 
     // Update user informatio api service
-    public Message updateUserInfos(UpdateUserInfosRequest request) throws
-    BasicException {
-    // Exctract user email from token
-    String userEmail = jwtService.extractUsername(request.getToken());
-    // Find userDetail by email
-    UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
-    // Validate token
-    if (!jwtService.isTokenValid(request.getToken(), userDetails)) {
-    throw new BasicException("Token is not valid", HttpStatus.UNAUTHORIZED);
-    }
-    // Get user by email
-    UserDTO userDTO = this.getUserByEmail(userEmail);
-    // Update user informations
-    this.updateUser(userDTO, request);
-    // Return message
-
-    return Message.builder().message("User informations updated successfully").type(MessageType.SUCCESS).build();
+    public BasicResponse updateUserInfos(UpdateUserInfosRequest request,BindingResult bindingResult,String token) throws BasicException {
+        // Validate the request
+        Map<String, String> errors = new HashMap<>();
+        // Request validation
+        if (bindingResult.hasErrors()) {
+            BasicResponse resposne = BasicResponse.builder()
+                    .status(HttpStatus.BAD_REQUEST)
+                    .message(basicValiadtion.handleValidationErrors(bindingResult))
+                    .build();
+            throw new BasicException(resposne);
+        }
+        // Extract the email from the token
+        String email = jwtService.extractUsername(token);
+        // Find user details by email
+        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+        // Check if the token is valid
+        if (!jwtService.isTokenValid(token, userDetails)) {
+            errors.put("token", "token is not valid");
+            BasicResponse response = BasicResponse.builder()
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .message(Message.builder().messages(errors)
+                            .type(MessageType.ERROR).build())
+                    .build();
+            throw new BasicException(response);
+        }
+        // Check if the email exists excluding the current user's email
+        if (emailExistsExcludingCurrentUser(request.getEmail(), email)) {
+            errors.put("email", "email already exists");
+            BasicResponse response = BasicResponse.builder()
+                    .status(HttpStatus.BAD_REQUEST)
+                    .message(Message.builder().messages(errors)
+                            .type(MessageType.ERROR).build())
+                    .build();
+            throw new BasicException(response);
+        }
+        // Get user informations by email
+        UserDTO userDTO = this.getUserByEmail(email);
+        // Update user informations
+        this.updateUser(userDTO, request);
+        // return response with user informations
+        Map<String,Object> data = new HashMap<>();
+        data.put("user", userDTO);
+        Map<String, String> message = new HashMap<>();
+        message.put("success", "User informations updated successfully");
+        return BasicResponse.builder()
+                .status(HttpStatus.OK)
+                .message(Message.builder().messages(message)
+                        .type(MessageType.SUCCESS).build())
+                .data(data)
+                .build();
 
     }
 
@@ -102,6 +182,7 @@ public class UserService {
         }
         return buildToUserDTO(user);
     }
+
 
     // Check if email exists excluding the current user's email
     private boolean emailExistsExcludingCurrentUser(String email, String currentUserEmail) {
@@ -126,7 +207,6 @@ public class UserService {
         // Build user entity
         User user = buildToUserEntity(userDTO);
         // Update user information from request
-        userDTO.setUsername(request.getUsername());
         userDTO.setLastname(request.getLastname());
         userDTO.setFirstname(request.getFirstname());
         userDTO.setEmail(request.getEmail());
@@ -141,7 +221,6 @@ public class UserService {
     public User buildToUserEntity(UserDTO userDTO) {
         User user = User.builder()
                 .id(userDTO.getId())
-                .username(userDTO.getUsername())
                 .lastname(userDTO.getLastname())
                 .firstname(userDTO.getFirstname())
                 .email(userDTO.getEmail())
@@ -157,7 +236,6 @@ public class UserService {
     public UserDTO buildToUserDTO(User user) {
         UserDTO userDTO = UserDTO.builder()
                 .id(user.getId())
-                .username(user.getUsername())
                 .lastname(user.getLastname())
                 .firstname(user.getFirstname())
                 .email(user.getEmail())
@@ -178,10 +256,6 @@ public class UserService {
         return repository.existsByEmail(email);
     }
 
-    // Check if the username exists
-    public boolean usernameExists(String username) {
-        return repository.existsByUsername(username);
-    }
 
     public boolean confirmPassword(String password, String confirm) {
         return password.equals(confirm);

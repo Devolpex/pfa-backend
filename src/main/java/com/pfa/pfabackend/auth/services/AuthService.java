@@ -79,16 +79,6 @@ public class AuthService {
                     .build();
             throw new BasicException(response);
         }
-        // Check if username already exists
-        if (userService.usernameExists(request.getUsername())) {
-            errors.put("username", "Username already exists");
-            BasicResponse response = BasicResponse.builder()
-                    .status(HttpStatus.BAD_REQUEST)
-                    .message(Message.builder().messages(errors)
-                            .type(MessageType.ERROR).build())
-                    .build();
-            throw new BasicException(response);
-        }
         // Check password confirmation
         if (!userService.confirmPassword(request.getPassword(), request.getConfirmPassword())) {
             errors.put("confirmPassword", "Password and confirm password are not the same");
@@ -104,11 +94,10 @@ public class AuthService {
         request.setPassword(passwordService.bcryptPassword(request.getPassword()));
         // Format the data
         request.setEmail(request.getEmail().toLowerCase());
-        request.setUsername(request.getUsername().toLowerCase());
         request.setFirstname(userService.firstLetterToUpperCase(request.getFirstname()));
         request.setLastname(userService.firstLetterToUpperCase(request.getLastname()));
         // Build the DTO
-        UserDTO userDTO = buildRegisterRequestToDTO(request);
+        UserDTO userDTO = this.buildRegisterRequestToDTO(request);
         // Generate the token
         String token = jwtService.createToken(userDTO);
         // Save client
@@ -159,6 +148,7 @@ public class AuthService {
             Map<String, Object> data = new HashMap<>();
             data.put("token", jwtToken);
             data.put("role", user.getRole());
+            data.put("user", userDTO);
             Map<String, String> message = new HashMap<>();
             message.put("success", "Login successful");
             BasicResponse successResponse = BasicResponse.builder()
@@ -227,7 +217,6 @@ public class AuthService {
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
                 .phone(request.getPhone())
-                .username(request.getUsername())
                 .password(request.getPassword())
                 .role(Role.CLIENT)
                 .build();
