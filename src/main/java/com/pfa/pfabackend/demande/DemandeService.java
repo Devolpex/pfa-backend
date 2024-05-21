@@ -104,6 +104,18 @@ public class DemandeService {
             return false;
         }
     }
+    // Update demande notif;
+    public boolean updateDemandeNotif(Long id, String notif) {
+        Optional<Demande> demandeOptional = demandeRepository.findById(id);
+        if (demandeOptional.isPresent()) {
+            Demande demande = demandeOptional.get();
+            demande.setNotif(notif);
+            demandeRepository.save(demande);
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     public boolean deleteDemande(long id) {
         Demande demande = demandeRepository.findById(id).orElse(null);

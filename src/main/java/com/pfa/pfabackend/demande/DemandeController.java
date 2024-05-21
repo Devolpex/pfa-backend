@@ -196,6 +196,27 @@ public class DemandeController {
         }
     }
 
+    // Update demande notif
+    @PutMapping("/{id}/notif")
+    public ResponseEntity<DemandeUpdateResponse> updateDemandeNotif(
+            @PathVariable("id") Long id,
+            @RequestBody String notif) {
+
+        // Call service method to update the notif of the demand with the given ID
+        boolean updated = demandeService.updateDemandeNotif(id, notif);
+
+        if (updated) {
+            return ResponseEntity.ok(DemandeUpdateResponse.builder()
+                    .success("Demande updated notif  successfully")
+                    .redirectTo("/demandes")
+                    .build());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(DemandeUpdateResponse.builder().errors(Collections.singletonList("Demande not found"))
+                            .build());
+        }
+    }
+
     // Delete a demande
     @DeleteMapping("/{id}")
     public ResponseEntity<DemandeDeleteResponse> deleteDemande(@PathVariable Long id) {

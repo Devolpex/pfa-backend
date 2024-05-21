@@ -6,8 +6,8 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/pfadb?createDatabaseIfNotExist=true
-    username: marouane
-    password: Marouane@2001
+    username: root
+    password: root@@0603
   jpa:
     hibernate:
       ddl-auto: update
