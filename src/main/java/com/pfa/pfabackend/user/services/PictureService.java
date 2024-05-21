@@ -79,6 +79,8 @@ public class PictureService {
                     .build();
             throw new BasicException(response);
 
+            
+
         }
         try {
             // Get user by email
