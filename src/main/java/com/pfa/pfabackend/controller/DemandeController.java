@@ -141,6 +141,21 @@ public class DemandeController {
                 .build());
     }
 
+    // Get demandes by search
+    @GetMapping("/search")
+    public ResponseEntity<DemandePageResponse> searchDemandes(
+            @RequestParam String search,
+            @RequestParam(defaultValue = "1") int page) {
+        int size = 5;
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<DemandeDto> demandePage = demandeService.searchDemandes(search, pageable);
+        return ResponseEntity.ok(DemandePageResponse.builder()
+                .demandes(demandePage.getContent())
+                .currentPage(demandePage.getNumber() + 1)
+                .totalPages(demandePage.getTotalPages())
+                .build());
+    }
+
     // Get demandes by client id
     @GetMapping("/client/{id}")
     public ResponseEntity<DemandePageResponse> findDemandesByClient_Id(@PathVariable Long id,
