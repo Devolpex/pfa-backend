@@ -21,6 +21,7 @@ public class UserDTO {
     private Long clientId;
     private Long adminId;
     private String password;
+    
 }
 
 
