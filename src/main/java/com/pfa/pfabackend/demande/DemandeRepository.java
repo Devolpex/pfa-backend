@@ -14,5 +14,8 @@ public interface DemandeRepository extends JpaRepository<Demande, Long> {
     Page<Demande> findAll(Pageable pageable);
     @Query("SELECT d FROM Demande d ORDER BY d.id DESC ")
     Page<Demande> findDemandesByClient_Id(Long clientId, Pageable pageable);
+    @Query("SELECT d FROM Demande d WHERE d.description LIKE %?1% OR str(d.type) LIKE %?1% OR str(d.status) LIKE %?1% ORDER BY d.id DESC")
+    Page<Demande> searchDemandes(String search, Pageable pageable);
+
 
 }

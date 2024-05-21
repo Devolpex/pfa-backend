@@ -53,6 +53,7 @@ public class DemandeService {
                  .date(demande.getDate())
                  .type(String.valueOf(demande.getType()))
                  .clientId(clientID).clientName(clientName)
+                 .clientName(clientName)
                  .build();
          return demandeDto;
     }
@@ -111,6 +112,11 @@ public class DemandeService {
             return true;
         }
         return false;
+    }
+
+    public Page<DemandeDto> searchDemandes(String search, Pageable pageable) {
+        Page<Demande> demandes = demandeRepository.searchDemandes(search, pageable);
+        return demandes.map(this::convertToDTO);
     }
 
 }
