@@ -5,16 +5,11 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import com.pfa.pfabackend.auth.https.req.CodeValidationRequest;
@@ -22,25 +17,16 @@ import com.pfa.pfabackend.auth.https.req.ForgetPasswordRequest;
 import com.pfa.pfabackend.auth.https.req.LoginRequest;
 import com.pfa.pfabackend.auth.https.req.NewPasswordRequest;
 import com.pfa.pfabackend.auth.https.req.RegisterRequest;
-import com.pfa.pfabackend.auth.https.res.AuthResponse;
 import com.pfa.pfabackend.auth.https.res.CodeValidationResponse;
 import com.pfa.pfabackend.auth.https.res.ForgetPasswordResponse;
-import com.pfa.pfabackend.auth.https.res.LoginResponse;
 import com.pfa.pfabackend.auth.https.res.NewPasswordResponse;
 import com.pfa.pfabackend.auth.services.AuthService;
 import com.pfa.pfabackend.basic.BasicException;
 import com.pfa.pfabackend.basic.BasicResponse;
-import com.pfa.pfabackend.basic.BasicValiadtion;
 import com.pfa.pfabackend.client.Client;
 import com.pfa.pfabackend.client.ClientService;
 import com.pfa.pfabackend.email.EmailService;
-import com.pfa.pfabackend.messages.Message;
-import com.pfa.pfabackend.messages.enums.MessageType;
-import com.pfa.pfabackend.token.JwtService;
-import com.pfa.pfabackend.user.UserDTO;
-import com.pfa.pfabackend.user.enums.Role;
 import com.pfa.pfabackend.user.models.CodeConfirmation;
-import com.pfa.pfabackend.user.models.User;
 import com.pfa.pfabackend.user.services.CodeConfirmationService;
 import com.pfa.pfabackend.user.services.UserService;
 
@@ -51,12 +37,10 @@ import com.pfa.pfabackend.user.services.UserService;
 public class AuthController {
     private final AuthService authService;
     private final UserService userService;
-    private final JwtService jwtService;
     private final ClientService clientService;
     private final EmailService emailService;
     private final CodeConfirmationService codeConfirmationService;
 
-    private final BasicValiadtion basicValiadtion;
 
     // Register a new user
 
@@ -96,62 +80,6 @@ public class AuthController {
         }
     }
 
-    // Login a user
-    // @PostMapping("/login")
-    // public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request, BindingResult bindingResult) {
-    //     List<String> errors = new ArrayList<>();
-
-    //     if (bindingResult.hasErrors()) {
-    //         errors = bindingResult.getAllErrors().stream().map(error -> error.getDefaultMessage())
-    //                 .collect(Collectors.toList());
-    //         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(LoginResponse.builder().errors(errors).build());
-    //     }
-    //     try {
-    //         UserDTO user = authService.login(request);
-    //         if (user == null) {
-    //             throw new BadCredentialsException("Invalid email or password");
-    //         } else {
-    //             var jwtToken = jwtService.createToken(user);
-    //             String redirectTo = new String();
-    //             if (user.getRole() == Role.CLIENT) {
-    //                 redirectTo = "/profile";
-    //             }
-    //             if (user.getRole() == Role.ADMIN) {
-    //                 redirectTo = "/clients";
-    //             }
-
-    //             return ResponseEntity.ok(LoginResponse.builder()
-    //                     .token(jwtToken)
-    //                     .role(user.getRole())
-    //                     .success("Login successful")
-    //                     .redirectTo(redirectTo)
-    //                     .build());
-    //         }
-
-    //     } catch (BadCredentialsException e) {
-    //         String errorMessage = e.getMessage();
-    //         if (errorMessage != null) {
-    //             // Check if the email exists in the database
-    //             String userPassword = userService.findPasswordByEmail(request.getEmail());
-    //             if (userService.emailExists(request.getEmail()) == false) {
-    //                 errors.add("Email does not exist");
-    //             } else if (authService.comparePasswords(request.getPassword(), userPassword) == false) {
-    //                 // Email exists but password is incorrect
-    //                 errors.add("Incorrect password");
-    //             }
-    //         }
-    //         if (!errors.isEmpty()) {
-    //             // Return errors in the response
-    //             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-    //                     .body(LoginResponse.builder().errors(errors).build());
-    //         } else {
-    //             // If no specific errors are detected, return a generic error
-    //             errors.add(errorMessage);
-    //             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-    //                     .body(LoginResponse.builder().errors(errors).build());
-    //         }
-    //     }
-    // }
 
     // Forget password
     @PostMapping("/forget-password")

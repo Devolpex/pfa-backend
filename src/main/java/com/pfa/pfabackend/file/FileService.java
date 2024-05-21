@@ -7,18 +7,26 @@ import java.util.Base64;
 
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+
 
 @Service
 @RequiredArgsConstructor
 public class FileService {
 
-    // public static boolean checkIfImage(String base64String) {
-    //     // Check if the base64 string starts with a valid image header
-    //     return StringUtils.startsWithIgnoreCase(base64String, "data:image/");
-    // }
+    // Method to check if the base64 string is a valid image
+    public static boolean checkIfImage(String base64String) {
+        // Check if the base64 string starts with a valid image header
+        return StringUtils.startsWithIgnoreCase(base64String, "data:image/");
+    }
 
+    // Method to convert base64 string to image file
     public File convertToImage(String base64String, long id) throws IOException {
         // Decode base64 string to byte array
         byte[] imageBytes = Base64.getDecoder().decode(base64String.split(",")[1]);
@@ -43,8 +51,6 @@ public class FileService {
         return imageFile;
     }
 
-
-
     // Method to validate supported image types
     private boolean isValidImageType(String imageType) {
         return imageType.equals("jpeg") || imageType.equals("jpg") ||
@@ -65,6 +71,27 @@ public class FileService {
         return path;
     }
 
+    // Method to get the image type from a base64 string
+    public String getImageType(String base64Image) {
+        String[] parts = base64Image.split(",");
+        String mimeType = parts[0].split(":")[1].split(";")[0];
+        return mimeType;
+    }
 
+    // Method to check if the image URL is valid
+    private static boolean isValidImageUrl(String imageUrl) {
+        // Regular expression pattern to match "https://drive.google.com/thumbnail?id="
+        // followed by any characters
+        String regex = "^https:\\/\\/drive\\.google\\.com\\/thumbnail\\?id=.*$";
+
+        // Create a Pattern object
+        Pattern pattern = Pattern.compile(regex);
+
+        // Create a Matcher object
+        Matcher matcher = pattern.matcher(imageUrl);
+
+        // Check if the image URL matches the pattern
+        return matcher.matches();
+    }
 
 }

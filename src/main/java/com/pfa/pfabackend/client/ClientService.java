@@ -47,7 +47,7 @@ public class ClientService {
                 .phone(request.getPhone())
                 .password(request.getPassword())
                 .role(Role.CLIENT)
-                .created_at(new Date())
+                // .created_at(new Date())
                 .build();
         // Save user data
         userRepository.save(user);

@@ -11,7 +11,6 @@ import com.pfa.pfabackend.user.enums.Role;
 @NoArgsConstructor
 public class UserDTO {
     private long id;
-    private String username;
     private String lastname;
     private String firstname;
     private String email;
