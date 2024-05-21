@@ -45,7 +45,7 @@ public class AdminService {
 
     public void updateAdmin(long id, Admin admin) {
         User user = admin.getUser();
-        user.setUpdate_at(new Date());
+        // user.setUpdate_at(new Date());
         userRepository.save(user);
     }
 

@@ -144,7 +144,7 @@ public class ClientService {
     // Update client
     public void updateClient(Long id, Client client) {
         User user = client.getUser();
-        user.setUpdate_at(new Date());
+        // user.setUpdate_at(new Date());
         userRepository.save(user);
     }
 

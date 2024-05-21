@@ -99,7 +99,7 @@ public class AdminController {
                 .phone(request.getPhone())
                 .password(userService.bcryptPassword(request.getPassword()))
                 .role(Role.ADMIN)
-                .created_at(new Date())
+                // .created_at(new Date())
                 .build();
 
         adminService.saveAdmin(user);
