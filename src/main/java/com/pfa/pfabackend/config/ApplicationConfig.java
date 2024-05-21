@@ -14,7 +14,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.pfa.pfabackend.repository.UserRepository;
+import com.pfa.pfabackend.user.data.UserRepository;
 
 @Configuration
 @RequiredArgsConstructor
